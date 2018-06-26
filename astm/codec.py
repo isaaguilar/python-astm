@@ -111,11 +111,14 @@ def decode_frame(frame, encoding):
                  for record in records.split(RECORD_SEP)]
 
 
-def decode_record(record, encoding):
+def decode_record(record, encoding, repeat_fields=None):
     """Decodes ASTM record message."""
+    # Repeat fields may be a single item, therefore REPEAT_SEP won't exist.
+    # This hook can be used to explicitly define a repeat field. 
+    repeat_fields = [] if not repeat_fields else repeat_fields
     fields = []
-    for item in record.split(FIELD_SEP):
-        if REPEAT_SEP in item:
+    for i, item in enumerate(record.split(FIELD_SEP)):
+        if REPEAT_SEP in item or (i + 1) in repeat_fields:
             item = decode_repeated_component(item, encoding)
         elif COMPONENT_SEP in item:
             item = decode_component(item, encoding)
